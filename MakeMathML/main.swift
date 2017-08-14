@@ -8,5 +8,25 @@
 
 import Foundation
 
-print("Hello, World!")
+let inputs = CommandLine.arguments
+/* check on correct parameter usage */
+if inputs.count < 2 {
+    print("No input file specified")
+} else {
+    /* open the source file (Scanner.S_src)  */
+    var srcName = inputs[1]
+    var input = InputStream(fileAtPath: srcName)!
+    let scanner = Scanner(s: input)
+    
+    print("Parsing")
+    let parser = Parser(scanner: scanner)
+    parser.Parse()
+    
+    if parser.errors.count > 0 {
+        print("Compilation with Errors")
+    } else {
+        print("Parsed correctly")
+    }
+}
+
 

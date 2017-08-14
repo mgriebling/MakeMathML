@@ -8,23 +8,37 @@
 
 /* Begin PBXBuildFile section */
 		477BFBAD1F404A1200A3D79E /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477BFBAC1F404A1200A3D79E /* main.swift */; };
+		477BFBB41F404B8200A3D79E /* MathML.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477BFBB31F404B8200A3D79E /* MathML.swift */; };
+		477BFBB61F404C7600A3D79E /* String+Char.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477BFBB51F404C7600A3D79E /* String+Char.swift */; };
+		477BFBB91F404E2B00A3D79E /* AST.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477BFBB81F404E2B00A3D79E /* AST.swift */; };
+		477BFBBE1F406CBC00A3D79E /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477BFBBC1F406CBC00A3D79E /* Parser.swift */; };
+		477BFBBF1F406CBC00A3D79E /* Scanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477BFBBD1F406CBC00A3D79E /* Scanner.swift */; };
+		477BFBC11F40761800A3D79E /* Test.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 477BFBC01F4075DD00A3D79E /* Test.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		477BFBA71F404A1200A3D79E /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 16;
 			files = (
+				477BFBC11F40761800A3D79E /* Test.txt in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		477BFBA91F404A1200A3D79E /* MakeMathML */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MakeMathML; sourceTree = BUILT_PRODUCTS_DIR; };
 		477BFBAC1F404A1200A3D79E /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		477BFBB31F404B8200A3D79E /* MathML.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MathML.swift; sourceTree = "<group>"; };
+		477BFBB51F404C7600A3D79E /* String+Char.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Char.swift"; sourceTree = "<group>"; };
+		477BFBB71F404CBA00A3D79E /* exp.atg */ = {isa = PBXFileReference; lastKnownFileType = text; path = exp.atg; sourceTree = "<group>"; };
+		477BFBB81F404E2B00A3D79E /* AST.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AST.swift; sourceTree = "<group>"; };
+		477BFBBC1F406CBC00A3D79E /* Parser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
+		477BFBBD1F406CBC00A3D79E /* Scanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scanner.swift; sourceTree = "<group>"; };
+		477BFBC01F4075DD00A3D79E /* Test.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Test.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +72,13 @@
 			isa = PBXGroup;
 			children = (
 				477BFBAC1F404A1200A3D79E /* main.swift */,
+				477BFBB31F404B8200A3D79E /* MathML.swift */,
+				477BFBBC1F406CBC00A3D79E /* Parser.swift */,
+				477BFBBD1F406CBC00A3D79E /* Scanner.swift */,
+				477BFBB51F404C7600A3D79E /* String+Char.swift */,
+				477BFBB71F404CBA00A3D79E /* exp.atg */,
+				477BFBB81F404E2B00A3D79E /* AST.swift */,
+				477BFBC01F4075DD00A3D79E /* Test.txt */,
 			);
 			path = MakeMathML;
 			sourceTree = "<group>";
@@ -121,6 +142,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				477BFBB91F404E2B00A3D79E /* AST.swift in Sources */,
+				477BFBB41F404B8200A3D79E /* MathML.swift in Sources */,
+				477BFBBE1F406CBC00A3D79E /* Parser.swift in Sources */,
+				477BFBB61F404C7600A3D79E /* String+Char.swift in Sources */,
+				477BFBBF1F406CBC00A3D79E /* Scanner.swift in Sources */,
 				477BFBAD1F404A1200A3D79E /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

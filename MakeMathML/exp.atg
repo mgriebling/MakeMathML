@@ -1,0 +1,151 @@
+COMPILER Program
+
+var curBlock: Proc!  // current program unit (procedure or main program)
+
+CHARACTERS
+  letter    = 'A'..'Z' + 'a'..'z' .
+  binDigit  = "01_" .
+  octDigit  = binDigit + '2'..'7' .
+  digit     = octDigit + "89" .
+  hexDigit  = digit + 'A'..'F' + 'a'..'f' .
+  baseDigit = hexDigit + 'G'..'Z' + 'g'..'z'.
+  eol       = '\r' .
+  lf        = '\n' .
+  tab       = '\t' .
+  superminus = '\u207b' .
+  superone   = '\u00b9' .
+
+TOKENS
+  pi          = '\u03c0' .
+  squared     = '\u00b2' .
+  cubed       = '\u00b3' .
+  times       = '\u00d7' .
+  divide      = '\u00f7' .
+  minus       = '\u2212' .
+  reciprocal  = superminus superone .
+  ident       = letter {baseDigit} [superminus superone] .
+  number      =  digit { digit } [ '.' { digit }
+                 [ 'E' [ '+' | '-' ] digit { digit } ]] ['i'] .
+  octalInt    = "0o" octDigit { octDigit } .
+  hexInt      = "0x" hexDigit { hexDigit } .
+  binInt      = "0b" binDigit { binDigit } .
+  decInt      = "0d" digit { digit } .
+  baseInt     = "#" digit { digit } "#" baseDigit { baseDigit } .
+
+COMMENTS
+  FROM "//" TO lf
+
+IGNORE eol + lf + tab
+
+PRODUCTIONS
+  Program =                               (. curBlock = Proc("", nil, self); curBlock.block = Block() .)
+    BlockList<curBlock.block>             (. curBlock.dump(); print("\n\n\(curBlock.mathml)") .)
+    .
+
+  BlockList <_ b: Block?>                 (. var s: Stat? = nil .)
+    = Statement<&s>                       (. b?.add(s) .)
+      {";" Statement<&s>                  (. b?.add(s) .)
+      }
+    .
+
+  Statement <_ s: inout Stat?>            (. var e: Expr? = nil; var name = ""; var obj : Obj? = nil .)
+    =                                     (. s = nil .)
+        ["let" ident                      (. name = t.val; obj = curBlock.find(name) .)
+          '=']
+        Expression <&e>                   (. s = Assignment(obj, e) .)
+      .
+
+  Expression <_ e: inout Expr?>           (. var e2: Expr? = nil; var op = Operator.EQU .)
+    =  SimpleExpression<&e>
+       [ RelOp<&op>
+         SimpleExpression<&e2>            (. e = BinExpr(e, op, e2) .)
+       ]
+       .
+
+  SimpleExpression <_ e: inout Expr?>     (. var e2: Expr? = nil; var op = Operator.EQU .)
+    =
+    Term<&e>
+    { AddOp<&op>
+      Term<&e2>                           (. e = BinExpr(e, op, e2) .)
+    }
+    .
+
+  Term <_ e: inout Expr?>                 (. var e2: Expr? = nil; var op = Operator.EQU .)
+    =
+      Power <&e>
+      { MulOp<&op>
+        Power <&e2>                       (. e = BinExpr(e, op, e2) .)
+      }
+      .
+
+  Power <_ e: inout Expr?>                (. var e2: Expr? = nil; var op = Operator.EQU .)
+    =
+      Factor <&e>
+        { PowerOp<&op>
+          Factor <&e2>                    (. e = BinExpr(e, op, e2) .)
+        }
+      .
+
+  Factor <_ e: inout Expr?>               (. var name = ""; var op = Operator.EQU .)
+    =                                     (. e = nil .)
+         ident                            (. name = t.val; e = Ident(curBlock.find(name)) .)
+         [(UnaryOp<&op>                   (. e = UnaryExpr(op, e) .)
+          | '(' Expression <&e>           (. e = BuiltInProc(name, e) .)
+           ')' )
+         ]
+      |  number                           (. e = IntCon(Double(t.val) ?? 0) .)
+         [UnaryOp<&op>]                   (. e = UnaryExpr(op, e) .)
+      | "-" Factor<&e>                    (. e = UnaryExpr(Operator.SUB, e) .)
+      | "~" Factor<&e>                    (. e = UnaryExpr(Operator.NOT, e) .)
+      | "true"                            (. e = BoolCon(true) .)
+      | "false"                           (. e = BoolCon(false) .)
+      | pi                                (. e = IntCon(Double.pi) .)
+      | "("
+            Expression <&e>
+        ")"
+      .
+
+  AddOp <_ op: inout Operator>
+    =                                     (. op = .ADD .)
+      ( '+'
+      | '-'                               (. op = .SUB .)
+      | minus                             (. op = .SUB .)
+      | '|'                               (. op = .OR  .)
+      ).
+
+  MulOp <_ op: inout Operator>
+    =                                     (. op = .MUL .)
+      ( '*'
+      | times
+      | divide                            (. op = .DIV .)
+      | '/'                               (. op = .DIV .)
+      | '%'                               (. op = .REM .)
+      | "&"                               (. op = .AND .)
+      ).
+
+  UnaryOp <_ op: inout Operator>
+    =                                     (. op = .FACT .)
+     ( '!'
+       | squared                          (. op = .SQR .)
+       | cubed                            (. op = .CUB .)
+     ).
+
+  PowerOp <_ op: inout Operator>
+    =                                     (. op = .POW .)
+      ( '^'
+      | "**"                              (. op = .POW .)
+      ).
+
+  RelOp <_ op: inout Operator>
+    =                                     (. op = .EQU .)
+      ( "=="
+      | "!="                              (. op = .NEQ .)
+      | "<="                              (. op = .LEQ .)
+      | "<"                               (. op = .LSS .)
+      | ">"                               (. op = .GTR .)
+      | ">="                              (. op = .GEQ .)
+      ).
+
+END Program.
+
+
