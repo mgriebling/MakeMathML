@@ -113,6 +113,10 @@ class Proc : Obj {      // procedure (also used for the main program)
     override func dump() {
         print("Proc " + name); block?.dump(); print()
     }
+    
+    override var mathml: String {
+        return "Proc " + name + (block?.mathml ?? "")
+    }
 }
 
 //----------- Expressions ----------------------------
@@ -159,7 +163,7 @@ class BinExpr: Expr {
         case .REM: s += "%"
         case .AND: s += "&"
         case .OR:  s += "|"
-        case .POW: s += "^"
+        case .POW: return "<msup>\n\(l)\(r)</msup>\n"
         case .EQU: s += "="
         case .LSS: s += "<"
         case .GTR: s += ">"
@@ -198,8 +202,8 @@ class UnaryExpr: Expr {
         switch op {
         case .SUB: s += "-"
         case .NOT: s += "~"
-        case .SQR: return "<msup>\n\(x)\n<mn>2</mn>\n</msup>\n"
-        case .CUB: return "<msup>\n\(x)\n<mn>3</mn>\n</msup>\n"
+        case .SQR: return "<msup>\n\(x)<mn>2</mn>\n</msup>\n"
+        case .CUB: return "<msup>\n\(x)<mn>3</mn>\n</msup>\n"
         case .FACT: return x + s + "!</mo>"
         default: break
         }
@@ -252,15 +256,18 @@ class Assignment: Stat {
     var right: Expr?
     
     init(_ o:Obj?, _ e:Expr?) { left = o; left?.val = e; right = e }
-    override func dump() { super.dump(); if left != nil { printn(left!.name + " = ") }; right?.dump() }
+    override func dump() { super.dump(); if left != nil {
+        printn(left!.name + " = ") };
+        right?.dump()
+    }
     override var value: Double { return right?.value ?? 0 }
     
     override var mathml: String {
         let e = right?.mathml ?? ""
-        let l = left?.mathml ?? ""
+        let l = left?.name ?? ""
         var x = "<mrow>\n"
         if !l.isEmpty {
-            x += "\(l)<mo>=</mo>\n"
+            x += "<mi>\(l)</mi>\n<mo>=</mo>\n"
         }
         return x + e + "</mrow>\n"
     }
@@ -319,7 +326,7 @@ class Block: Stat {
     
     override var mathml: String {
         var r = "<math>\n"
-        for s in stats { r += s.mathml }
+        for s in stats { r += s.mathml + "\n" }
         return r + "</math>\n"
     }
 }

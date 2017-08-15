@@ -94,7 +94,8 @@ PRODUCTIONS
            ')' )
          ]
       |  number                           (. e = IntCon(Double(t.val) ?? 0) .)
-         [UnaryOp<&op>]                   (. e = UnaryExpr(op, e) .)
+         [UnaryOp<&op>                    (. e = UnaryExpr(op, e) .)
+         ]
       | "-" Factor<&e>                    (. e = UnaryExpr(Operator.SUB, e) .)
       | "~" Factor<&e>                    (. e = UnaryExpr(Operator.NOT, e) .)
       | "true"                            (. e = BoolCon(true) .)

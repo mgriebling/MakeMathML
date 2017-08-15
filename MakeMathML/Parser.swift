@@ -285,8 +285,8 @@ public class Parser {
 			e = IntCon(Double(t.val) ?? 0) 
 			if la.kind == _squared || la.kind == _cubed || la.kind == 30 /* "!" */ {
 				UnaryOp(&op)
+				e = UnaryExpr(op, e) 
 			}
-			e = UnaryExpr(op, e) 
 		case 20 /* "-" */: 
 			Get()
 			Factor(&e)
