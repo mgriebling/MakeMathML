@@ -19,6 +19,53 @@ class Node {            // base node class of the AST
     var mathml: String { return "" }
 }
 
+extension Node {
+    
+    // mathml constructors
+    
+    func symbol(_ x: String, size: Int = 0) -> String {
+        let s = size == 0 ? "" : " mathsize=\"\(size)\""
+        return "<ms\(s)>\(x)</ms>\n"
+    }
+    
+    func variable(_ x: String, size: Int = 0) -> String {
+        let s = size == 0 ? "" : " mathsize=\"\(size)\""
+        return "<mi\(s)>\(x)</mi>\n"
+    }
+    
+    func number(_ val: Double, size: Int = 0) -> String {
+        var v = String(val)
+        if v.hasSuffix(".0") { v = v.replacingOccurrences(of: ".0", with: "") }
+        let s = size == 0 ? "" : " mathsize=\"\(size)\""
+        return "<mn\(s)>\(v)</mn>\n"
+    }
+    
+    func power(_ x: String, to y: String) -> String {
+        return "<msup>\n\(x)\(y)</msup>\n"
+    }
+    
+    func fraction(_ x: String, over y: String) -> String {
+        return "<mfrac>\n\(x)\(y)</mfrac>\n"
+    }
+    
+    func root(_ x: String, n: Int) -> String {
+        if n == 2 {
+            return "<msqrt>\n\(x)</msqrt>\n"
+        } else {
+            return "<mroot><mrow>\n\(x)</mrow>\n\(number(Double(n)))</mroot>\n"
+        }
+    }
+    
+    func fenced(_ x: String, open: String = "(", close: String = ")") -> String {
+        var braces = ""
+        if open != "(" || close != ")" {
+            braces = " open=\"\(open)\" close=\"\(close)\""
+        }
+        return "<mfenced\(braces)>\n<mrow>\(x)</mrow></mfenced>\n"
+    }
+    
+}
+
 //----------- Declarations ----------------------------
 
 
@@ -69,14 +116,16 @@ class BuiltInProc : Expr {
     
     override var mathml: String {
         let x = arg?.mathml ?? ""
-        var s = "<mi>"
+        var s = ""
         switch name {
-        case "sqrt": return "<msqrt>\n\(x)</msqrt>\n"
-        case "cbrt": return "<mroot>\n\(x)<mn>3</mn>\n</mroot>\n"
-        case "abs": return "<ms>|</ms>" + x + "<ms>|</ms>"
-        default: s += name + "</mi>"
+        case "sqrt": return root(x, n: 2)
+        case "cbrt": return root(x, n: 3)
+        case "abs": return  fenced(x, open: "|", close: "|")
+        case "exp": return power(variable("e"), to: x)
+        case "log", "log10": s += "<msub>\n\(variable("log"))\(number(10))</msub>\n"
+        default: s += variable(name)
         }
-        return s + "<ms>(</ms>" + x + "<ms>)</ms>"
+        return s + fenced(x)
     }
 }
 
@@ -115,7 +164,7 @@ class Proc : Obj {      // procedure (also used for the main program)
     }
     
     override var mathml: String {
-        return "Proc " + name + (block?.mathml ?? "")
+        return block?.mathml ?? ""
     }
 }
 
@@ -152,27 +201,26 @@ class BinExpr: Expr {
     }
     
     override var mathml: String {
-        var s = "<mo>"
+        var s = ""
         let l = left?.mathml ?? ""
         let r = right?.mathml ?? ""
         switch op {
-        case .ADD: s += "+"
-        case .SUB: s += "-"
-        case .MUL: s += "" // invisible multiply
-        case .DIV: return "<mfrac>\n\(l)\(r)</mfrac>"
-        case .REM: s += "%"
-        case .AND: s += "&"
-        case .OR:  s += "|"
-        case .POW: return "<msup>\n\(l)\(r)</msup>\n"
-        case .EQU: s += "="
-        case .LSS: s += "<"
-        case .GTR: s += ">"
-        case .LEQ: s += "<="
-        case .GEQ: s += ">="
-        case .NEQ: s += "!="
+        case .ADD: s = symbol("+")
+        case .SUB: s = symbol("-")
+        case .MUL: s = symbol("") // invisible times
+        case .DIV: return fraction(l, over: r)
+        case .REM: s = symbol("%")
+        case .AND: s = symbol("&amp;")
+        case .OR:  s = symbol("|")
+        case .POW: return power(l, to:r)
+        case .EQU: s = symbol("=")
+        case .LSS: s = symbol("&lt;")
+        case .GTR: s = symbol("&gt;")
+        case .LEQ: s = symbol("&le;")
+        case .GEQ: s = symbol("&ge;")
+        case .NEQ: s = symbol("&ne;")
         default: break
         }
-        s += "</mo>\n"
         return l + s + r
     }
 }
@@ -198,16 +246,16 @@ class UnaryExpr: Expr {
     
     override var mathml: String {
         let x = e?.mathml ?? ""
-        var s = "<mo>"
+        var s = ""
         switch op {
-        case .SUB: s += "-"
-        case .NOT: s += "~"
-        case .SQR: return "<msup>\n\(x)<mn>2</mn>\n</msup>\n"
-        case .CUB: return "<msup>\n\(x)<mn>3</mn>\n</msup>\n"
-        case .FACT: return x + s + "!</mo>"
+        case .SUB: s = symbol("-")
+        case .NOT: s = symbol("~")
+        case .SQR: return power(x, to:number(2))
+        case .CUB: return power(x, to:number(3))
+        case .FACT: return x + symbol("!")
         default: break
         }
-        return s + "</mo>" + x
+        return s + x
     }
 }
 
@@ -218,7 +266,7 @@ class Ident: Expr {
     override func dump() { printn(obj.name) }
     override var value: Double { return obj.val?.value ?? 0 }
     override var mathml: String {
-        return "<mi>\(obj.name)</mi>\n"
+        return variable(obj.name)
     }
 }
 
@@ -229,7 +277,7 @@ class IntCon: Expr {
     override func dump() { printn("\(val)") }
     override var value: Double { return val }
     override var mathml: String {
-        return "<mn>\(val)</mn>\n"
+        return number(val)
     }
 }
 
@@ -240,7 +288,7 @@ class BoolCon: Expr {
     override func dump() { printn("\(val)") }
     override var value: Double { return val ? 1 : 0 }
     override var mathml: String {
-        return "<mn>\(val)</mn>\n"
+        return symbol("\(val)")
     }
 }
 
@@ -256,10 +304,7 @@ class Assignment: Stat {
     var right: Expr?
     
     init(_ o:Obj?, _ e:Expr?) { left = o; left?.val = e; right = e }
-    override func dump() { super.dump(); if left != nil {
-        printn(left!.name + " = ") };
-        right?.dump()
-    }
+    override func dump() { super.dump(); if left != nil { printn(left!.name + " = ") }; right?.dump() }
     override var value: Double { return right?.value ?? 0 }
     
     override var mathml: String {
@@ -267,50 +312,11 @@ class Assignment: Stat {
         let l = left?.name ?? ""
         var x = "<mrow>\n"
         if !l.isEmpty {
-            x += "<mi>\(l)</mi>\n<mo>=</mo>\n"
+            x += variable(l) + symbol("=")
         }
         return x + e + "</mrow>\n"
     }
 }
-
-//class Call: Stat {
-//    var proc:Obj
-//    init(_ o:Obj) { proc = o }
-//    override func dump() { super.dump(); print("call " + proc.name) }
-//}
-//
-//class If: Stat {
-//    var cond:Expr
-//    var stat:Stat
-//    init(_ e:Expr, _ s:Stat) { cond = e; stat = s }
-//    override func dump() { super.dump(); printn("if "); cond.dump(); print(); Stat.indent+=1; stat.dump(); Stat.indent-=1 }
-//}
-//
-//class IfElse: Stat {
-//    var ifPart: Stat
-//    var elsePart: Stat?
-//    init(_ i:Stat, _ e:Stat?) { ifPart = i; elsePart = e }
-//    override func dump() { ifPart.dump(); super.dump(); print("else "); Stat.indent+=1; elsePart?.dump(); Stat.indent-=1 }
-//}
-//
-//class While: Stat {
-//    var cond: Expr
-//    var stat: Stat
-//    init(_ e:Expr, _ s:Stat) { cond = e; stat = s }
-//    override func dump() { super.dump(); printn("while "); cond.dump(); print(); Stat.indent+=1; stat.dump(); Stat.indent-=1 }
-//}
-//
-//class Read: Stat {
-//    var obj:Obj
-//    init(_ o:Obj) { obj = o }
-//    override func dump() { super.dump(); print("read " + obj.name) }
-//}
-//
-//class Write: Stat {
-//    var e:Expr
-//    init(_ x:Expr) { e = x }
-//    override func dump() { super.dump(); printn("write "); e.dump(); print() }
-//}
 
 class Block: Stat {
     var stats = [Stat]()
@@ -325,9 +331,9 @@ class Block: Stat {
     }
     
     override var mathml: String {
-        var r = "<math>\n"
-        for s in stats { r += s.mathml + "\n" }
-        return r + "</math>\n"
+        var r = "<!DOCTYPE html>\n<html>\n<body>\n"
+        for s in stats { r += "<p><math>\n" + s.mathml + "</math></p>\n\n" }
+        return r + "</html>\n</body>\n"
     }
 }
 

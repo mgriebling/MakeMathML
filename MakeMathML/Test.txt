@@ -2,7 +2,7 @@ let a = 2; let b = a+3;
 a + 2*b - 3;
 2^b;
 asin(sin(a));
-sqrt(2);
+sqrt(2+a^2);
 log(1000);
 ln(exp(3));
 b²;

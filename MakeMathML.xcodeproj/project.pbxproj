@@ -30,6 +30,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2FBB9FDC1F4319C6001894BC /* test.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test.html; sourceTree = "<group>"; };
 		477BFBA91F404A1200A3D79E /* MakeMathML */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MakeMathML; sourceTree = BUILT_PRODUCTS_DIR; };
 		477BFBAC1F404A1200A3D79E /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		477BFBB31F404B8200A3D79E /* MathML.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MathML.swift; sourceTree = "<group>"; };
@@ -79,6 +80,7 @@
 				477BFBB71F404CBA00A3D79E /* exp.atg */,
 				477BFBB81F404E2B00A3D79E /* AST.swift */,
 				477BFBC01F4075DD00A3D79E /* Test.txt */,
+				2FBB9FDC1F4319C6001894BC /* test.html */,
 			);
 			path = MakeMathML;
 			sourceTree = "<group>";
@@ -281,6 +283,7 @@
 				477BFBB21F404A1200A3D79E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

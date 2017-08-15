@@ -39,7 +39,16 @@ IGNORE eol + lf + tab
 
 PRODUCTIONS
   Program =                               (. curBlock = Proc("", nil, self); curBlock.block = Block() .)
-    BlockList<curBlock.block>             (. curBlock.dump(); print("\n\n\(curBlock.mathml)") .)
+    BlockList<curBlock.block>             (. curBlock.dump()
+                                             let x = curBlock.mathml
+                                             if let f = OutputStream(toFileAtPath: "test.html", append: false), let d = x.data(using: .utf8) {
+                                                f.open()
+                                                let bytes = [UInt8](d)
+                                                f.write(bytes, maxLength: bytes.count)
+                                                print("\n\n\(x)")
+                                                f.close()
+                                             }
+                                           .)
     .
 
   BlockList <_ b: Block?>                 (. var s: Stat? = nil .)
