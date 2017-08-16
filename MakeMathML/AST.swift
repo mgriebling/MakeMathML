@@ -8,81 +8,35 @@
 
 import Foundation
 
-enum Type { case UNDEF, INT, BOOL }
-enum Operator { case EQU, LSS, GTR, GEQ, LEQ, NEQ, ADD, SUB, MUL, DIV, REM, OR, AND, NOT, POW, FACT, SQR, CUB }
+public enum Type { case UNDEF, INT, BOOL }
+public enum Operator { case EQU, LSS, GTR, GEQ, LEQ, NEQ, ADD, SUB, MUL, DIV, REM, OR, AND, NOT, POW, FACT, SQR, CUB }
 
-class Node {            // base node class of the AST
-    init() {}
-    func dump() {}
+public class Node {            // base node class of the AST
+    public init() {}
+    public func dump() {}
     func printn(_ s: String) { print(s, terminator: "") }
     var value: Double { return 0 }
     var mathml: String { return "" }
 }
 
-extension Node {
-    
-    // mathml constructors
-    
-    func symbol(_ x: String, size: Int = 0) -> String {
-        let s = size == 0 ? "" : " mathsize=\"\(size)\""
-        return "<ms\(s)>\(x)</ms>\n"
-    }
-    
-    func variable(_ x: String, size: Int = 0) -> String {
-        let s = size == 0 ? "" : " mathsize=\"\(size)\""
-        return "<mi\(s)>\(x)</mi>\n"
-    }
-    
-    func number(_ val: Double, size: Int = 0) -> String {
-        var v = String(val)
-        if v.hasSuffix(".0") { v = v.replacingOccurrences(of: ".0", with: "") }
-        let s = size == 0 ? "" : " mathsize=\"\(size)\""
-        return "<mn\(s)>\(v)</mn>\n"
-    }
-    
-    func power(_ x: String, to y: String) -> String {
-        return "<msup>\n\(x)\(y)</msup>\n"
-    }
-    
-    func fraction(_ x: String, over y: String) -> String {
-        return "<mfrac>\n\(x)\(y)</mfrac>\n"
-    }
-    
-    func root(_ x: String, n: Int) -> String {
-        if n == 2 {
-            return "<msqrt>\n\(x)</msqrt>\n"
-        } else {
-            return "<mroot><mrow>\n\(x)</mrow>\n\(number(Double(n)))</mroot>\n"
-        }
-    }
-    
-    func fenced(_ x: String, open: String = "(", close: String = ")") -> String {
-        var braces = ""
-        if open != "(" || close != ")" {
-            braces = " open=\"\(open)\" close=\"\(close)\""
-        }
-        return "<mfenced\(braces)>\n<mrow>\(x)</mrow></mfenced>\n"
-    }
-    
-}
 
 //----------- Declarations ----------------------------
 
 
 
-class Obj : Node {      // any declared object that has a name
+public class Obj : Node {      // any declared object that has a name
     var name: String    // name of this object
     var type: Type      // type of the object (UNDEF for procedures)
     var val: Expr?
     init(_ s: String, _ t: Type) { name = s; type = t }
 }
 
-class Var : Obj {       // variables
+public class Var : Obj {       // variables
     var adr: Int = 0    // address in memory
     override init(_ name: String, _ type: Type) { super.init(name, type) }
 }
 
-class BuiltInProc : Expr {
+public class BuiltInProc : Expr {
     
     static var _builtIns : [String: (_:Double) -> Double] = [
         "sin"  : sin,
@@ -129,7 +83,7 @@ class BuiltInProc : Expr {
     }
 }
 
-class Proc : Obj {      // procedure (also used for the main program)
+public class Proc : Obj {      // procedure (also used for the main program)
     var locals: [Obj]   // local objects declared in this procedure
     var block: Block?   // block of this procedure (nil for the main program)
     var nextAdr = 0     // next free address in this procedure
@@ -159,7 +113,7 @@ class Proc : Obj {      // procedure (also used for the main program)
         return o
     }
     
-    override func dump() {
+    override public func dump() {
         print("Proc " + name); block?.dump(); print()
     }
     
@@ -170,15 +124,15 @@ class Proc : Obj {      // procedure (also used for the main program)
 
 //----------- Expressions ----------------------------
 
-class Expr : Node {}
+public class Expr : Node {}
 
-class BinExpr: Expr {
+public class BinExpr: Expr {
     var op: Operator
     var left, right: Expr?
     
-    init(_ e1: Expr?, _ o: Operator, _ e2: Expr?) { op = o; left = e1; right = e2 }
-    override func dump() { printn("("); left?.dump(); printn(" \(op) "); right?.dump(); printn(")") }
-    override var value: Double {
+    public init(_ e1: Expr?, _ o: Operator, _ e2: Expr?) { op = o; left = e1; right = e2 }
+    public override func dump() { printn("("); left?.dump(); printn(" \(op) "); right?.dump(); printn(")") }
+    public override var value: Double {
         let l = left?.value ?? 0
         let r = right?.value ?? 0
         switch op {
@@ -225,14 +179,14 @@ class BinExpr: Expr {
     }
 }
 
-class UnaryExpr: Expr {
+public class UnaryExpr: Expr {
     var op: Operator
     var e: Expr?
     
-    init(_ x: Operator, _ y: Expr?) { op = x; e = y }
-    override func dump() { printn("\(op) "); e?.dump() }
+    public init(_ x: Operator, _ y: Expr?) { op = x; e = y }
+    public override func dump() { printn("\(op) "); e?.dump() }
     
-    override var value: Double {
+    public override var value: Double {
         let x = e?.value ?? 0
         switch op {
         case .SUB: return -x
@@ -259,7 +213,7 @@ class UnaryExpr: Expr {
     }
 }
 
-class Ident: Expr {
+public class Ident: Expr {
     var obj: Obj
 
     init(_ o: Obj) { obj = o }
@@ -270,7 +224,7 @@ class Ident: Expr {
     }
 }
 
-class IntCon: Expr {
+public class IntCon: Expr {
     var val: Double
     
     init(_ x:Double) { val = x }
@@ -281,7 +235,7 @@ class IntCon: Expr {
     }
 }
 
-class BoolCon: Expr {
+public class BoolCon: Expr {
     var val: Bool
     
     init(_ x: Bool) { val = x }
@@ -294,18 +248,18 @@ class BoolCon: Expr {
 
 //------------- Statements -----------------------------
 
-class Stat: Node {
+public class Stat: Node {
     static var indent = 0
-    override func dump() { for _ in 0..<Stat.indent { printn("  ") } }
+    override public func dump() { for _ in 0..<Stat.indent { printn("  ") } }
 }
 
-class Assignment: Stat {
+public class Assignment: Stat {
     var left: Obj?
     var right: Expr?
     
     init(_ o:Obj?, _ e:Expr?) { left = o; left?.val = e; right = e }
-    override func dump() { super.dump(); if left != nil { printn(left!.name + " = ") }; right?.dump() }
-    override var value: Double { return right?.value ?? 0 }
+    override public func dump() { super.dump(); if left != nil { printn(left!.name + " = ") }; right?.dump() }
+    override public var value: Double { return right?.value ?? 0 }
     
     override var mathml: String {
         let e = right?.mathml ?? ""
@@ -318,12 +272,12 @@ class Assignment: Stat {
     }
 }
 
-class Block: Stat {
+public class Block: Stat {
     var stats = [Stat]()
     
     func add(_ s: Stat?) { if s != nil { stats.append(s!) } }
     
-    override func dump() {
+    override public func dump() {
         super.dump()
         print("Block("); Stat.indent+=1
         for s in stats { s.dump(); print("  => \(s.value)") }
