@@ -26,7 +26,7 @@
     Coco/R itself) does not fall under the GNU General Public License.
 
     NOTE: The code below has been automatically generated from the
-    Parser.frame, Scanner.frame and Swift.atg files.  DO NOT EDIT HERE.
+    Parser.frame, Scanner.frame and Coco.atg files.  DO NOT EDIT HERE.
 -------------------------------------------------------------------------*/
 
 import Foundation
@@ -35,24 +35,22 @@ import Foundation
 
 public class Parser {
 	public let _EOF = 0
-	public let _pi = 1
-	public let _squared = 2
-	public let _cubed = 3
-	public let _times = 4
-	public let _divide = 5
-	public let _minus = 6
-	public let _reciprocal = 7
-	public let _ident = 8
-	public let _number = 9
-	public let _octalInt = 10
-	public let _hexInt = 11
-	public let _binInt = 12
-	public let _decInt = 13
-	public let _baseInt = 14
-	public let _let = 16
-	public let _true = 22
-	public let _false = 23
-	public let maxT = 39
+	public let _squared = 1
+	public let _cubed = 2
+	public let _times = 3
+	public let _divide = 4
+	public let _minus = 5
+	public let _ident = 6
+	public let _number = 7
+	public let _octalInt = 8
+	public let _hexInt = 9
+	public let _binInt = 10
+	public let _decInt = 11
+	public let _baseInt = 12
+	public let _let = 14
+	public let _true = 20
+	public let _false = 21
+	public let maxT = 37
 
 	static let _T = true
 	static let _x = false
@@ -148,7 +146,7 @@ public class Parser {
 		var s: Stat? = nil 
 		Statement(&s)
 		b?.add(s) 
-		while la.kind == 15 /* ";" */ {
+		while la.kind == 13 /* ";" */ {
 			Get()
 			Statement(&s)
 			b?.add(s) 
@@ -161,8 +159,10 @@ public class Parser {
 		if la.kind == _let {
 			Get()
 			Expect(_ident)
-			name = t.val; obj = curBlock.find(name) 
-			Expect(17 /* "=" */)
+			name = t.val; obj = curBlock.find(name)
+			if Ident._symbols[name] != nil { SemErr("Can't assign to a reserved symbol \"\(name)\"") }
+			
+			Expect(15 /* "=" */)
 		}
 		Expression(&e)
 		s = Assignment(obj, e) 
@@ -191,24 +191,24 @@ public class Parser {
 	func RelOp(_ op: inout Operator) {
 		op = .EQU 
 		switch la.kind {
-		case 33 /* "==" */: 
+		case 31 /* "==" */: 
 			Get()
-		case 34 /* "!=" */: 
+		case 32 /* "!=" */: 
 			Get()
 			op = .NEQ 
-		case 35 /* "<=" */: 
+		case 33 /* "<=" */: 
 			Get()
 			op = .LEQ 
-		case 36 /* "<" */: 
+		case 34 /* "<" */: 
 			Get()
 			op = .LSS 
-		case 37 /* ">" */: 
+		case 35 /* ">" */: 
 			Get()
 			op = .GTR 
-		case 38 /* ">=" */: 
+		case 36 /* ">=" */: 
 			Get()
 			op = .GEQ 
-		default: SynErr(40)
+		default: SynErr(38)
 		}
 	}
 
@@ -224,24 +224,24 @@ public class Parser {
 
 	func AddOp(_ op: inout Operator) {
 		op = .ADD 
-		if la.kind == 24 /* "+" */ {
+		if la.kind == 22 /* "+" */ {
 			Get()
-		} else if la.kind == 20 /* "-" */ {
+		} else if la.kind == 18 /* "-" */ {
 			Get()
 			op = .SUB 
 		} else if la.kind == _minus {
 			Get()
 			op = .SUB 
-		} else if la.kind == 25 /* "|" */ {
+		} else if la.kind == 23 /* "|" */ {
 			Get()
 			op = .OR  
-		} else { SynErr(41) }
+		} else { SynErr(39) }
 	}
 
 	func Power(_ e: inout Expr?) {
 		var e2: Expr? = nil; var op = Operator.EQU 
 		Factor(&e)
-		while la.kind == 31 /* "^" */ || la.kind == 32 /* "**" */ {
+		while la.kind == 29 /* "^" */ || la.kind == 30 /* "**" */ {
 			PowerOp(&op)
 			Factor(&e2)
 			e = BinExpr(e, op, e2) 
@@ -251,23 +251,23 @@ public class Parser {
 	func MulOp(_ op: inout Operator) {
 		op = .MUL 
 		switch la.kind {
-		case 26 /* "*" */: 
+		case 24 /* "*" */: 
 			Get()
 		case _times: 
 			Get()
 		case _divide: 
 			Get()
 			op = .DIV 
-		case 27 /* "/" */: 
+		case 25 /* "/" */: 
 			Get()
 			op = .DIV 
-		case 28 /* "%" */: 
+		case 26 /* "%" */: 
 			Get()
 			op = .REM 
-		case 29 /* "&" */: 
+		case 27 /* "&" */: 
 			Get()
 			op = .AND 
-		default: SynErr(42)
+		default: SynErr(40)
 		}
 	}
 
@@ -279,28 +279,28 @@ public class Parser {
 			Get()
 			name = t.val; e = Ident(curBlock.find(name)) 
 			if StartOf(4) {
-				if la.kind == _squared || la.kind == _cubed || la.kind == 30 /* "!" */ {
+				if la.kind == _squared || la.kind == _cubed || la.kind == 28 /* "!" */ {
 					UnaryOp(&op)
 					e = UnaryExpr(op, e) 
 				} else {
 					Get()
 					Expression(&e)
 					e = BuiltInProc(name, e) 
-					Expect(19 /* ")" */)
+					Expect(17 /* ")" */)
 				}
 			}
 		case _number: 
 			Get()
 			e = IntCon(Double(t.val) ?? 0) 
-			if la.kind == _squared || la.kind == _cubed || la.kind == 30 /* "!" */ {
+			if la.kind == _squared || la.kind == _cubed || la.kind == 28 /* "!" */ {
 				UnaryOp(&op)
 				e = UnaryExpr(op, e) 
 			}
-		case 20 /* "-" */: 
+		case 18 /* "-" */: 
 			Get()
 			Factor(&e)
 			e = UnaryExpr(Operator.SUB, e) 
-		case 21 /* "~" */: 
+		case 19 /* "~" */: 
 			Get()
 			Factor(&e)
 			e = UnaryExpr(Operator.NOT, e) 
@@ -310,30 +310,27 @@ public class Parser {
 		case _false: 
 			Get()
 			e = BoolCon(false) 
-		case _pi: 
-			Get()
-			e = IntCon(Double.pi) 
-		case 18 /* "(" */: 
+		case 16 /* "(" */: 
 			Get()
 			Expression(&e)
-			Expect(19 /* ")" */)
-		default: SynErr(43)
+			Expect(17 /* ")" */)
+		default: SynErr(41)
 		}
 	}
 
 	func PowerOp(_ op: inout Operator) {
 		op = .POW 
-		if la.kind == 31 /* "^" */ {
+		if la.kind == 29 /* "^" */ {
 			Get()
-		} else if la.kind == 32 /* "**" */ {
+		} else if la.kind == 30 /* "**" */ {
 			Get()
 			op = .POW 
-		} else { SynErr(44) }
+		} else { SynErr(42) }
 	}
 
 	func UnaryOp(_ op: inout Operator) {
 		op = .FACT 
-		if la.kind == 30 /* "!" */ {
+		if la.kind == 28 /* "!" */ {
 			Get()
 		} else if la.kind == _squared {
 			Get()
@@ -341,7 +338,7 @@ public class Parser {
 		} else if la.kind == _cubed {
 			Get()
 			op = .CUB 
-		} else { SynErr(45) }
+		} else { SynErr(43) }
 	}
 
 
@@ -357,11 +354,11 @@ public class Parser {
 
     func set (_ x: Int, _ y: Int) -> Bool { return Parser._set[x][y] }
     static let _set: [[Bool]] = [
-		[_T,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x],
-		[_x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_T,_T,_T, _T,_T,_T,_x, _x],
-		[_x,_x,_x,_x, _x,_x,_T,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _T,_x,_x,_x, _T,_T,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x],
-		[_x,_x,_x,_x, _T,_T,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_T,_T, _T,_T,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x],
-		[_x,_x,_T,_T, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_T,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_T,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x]
+		[_T,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x],
+		[_x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_T, _T,_T,_T,_T, _T,_x,_x],
+		[_x,_x,_x,_x, _x,_T,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_T,_x, _x,_x,_T,_T, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x],
+		[_x,_x,_x,_T, _T,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _T,_T,_T,_T, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x],
+		[_x,_T,_T,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _T,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _T,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x]
 
 	]
 } // end Parser
@@ -383,51 +380,49 @@ public class Errors {
         var s: String
         switch n {
 		case 0: s = "EOF expected"
-		case 1: s = "pi expected"
-		case 2: s = "squared expected"
-		case 3: s = "cubed expected"
-		case 4: s = "times expected"
-		case 5: s = "divide expected"
-		case 6: s = "minus expected"
-		case 7: s = "reciprocal expected"
-		case 8: s = "ident expected"
-		case 9: s = "number expected"
-		case 10: s = "octalInt expected"
-		case 11: s = "hexInt expected"
-		case 12: s = "binInt expected"
-		case 13: s = "decInt expected"
-		case 14: s = "baseInt expected"
-		case 15: s = "\";\" expected"
-		case 16: s = "\"let\" expected"
-		case 17: s = "\"=\" expected"
-		case 18: s = "\"(\" expected"
-		case 19: s = "\")\" expected"
-		case 20: s = "\"-\" expected"
-		case 21: s = "\"~\" expected"
-		case 22: s = "\"true\" expected"
-		case 23: s = "\"false\" expected"
-		case 24: s = "\"+\" expected"
-		case 25: s = "\"|\" expected"
-		case 26: s = "\"*\" expected"
-		case 27: s = "\"/\" expected"
-		case 28: s = "\"%\" expected"
-		case 29: s = "\"&\" expected"
-		case 30: s = "\"!\" expected"
-		case 31: s = "\"^\" expected"
-		case 32: s = "\"**\" expected"
-		case 33: s = "\"==\" expected"
-		case 34: s = "\"!=\" expected"
-		case 35: s = "\"<=\" expected"
-		case 36: s = "\"<\" expected"
-		case 37: s = "\">\" expected"
-		case 38: s = "\">=\" expected"
-		case 39: s = "??? expected"
-		case 40: s = "invalid RelOp"
-		case 41: s = "invalid AddOp"
-		case 42: s = "invalid MulOp"
-		case 43: s = "invalid Factor"
-		case 44: s = "invalid PowerOp"
-		case 45: s = "invalid UnaryOp"
+		case 1: s = "squared expected"
+		case 2: s = "cubed expected"
+		case 3: s = "times expected"
+		case 4: s = "divide expected"
+		case 5: s = "minus expected"
+		case 6: s = "ident expected"
+		case 7: s = "number expected"
+		case 8: s = "octalInt expected"
+		case 9: s = "hexInt expected"
+		case 10: s = "binInt expected"
+		case 11: s = "decInt expected"
+		case 12: s = "baseInt expected"
+		case 13: s = "\";\" expected"
+		case 14: s = "\"let\" expected"
+		case 15: s = "\"=\" expected"
+		case 16: s = "\"(\" expected"
+		case 17: s = "\")\" expected"
+		case 18: s = "\"-\" expected"
+		case 19: s = "\"~\" expected"
+		case 20: s = "\"true\" expected"
+		case 21: s = "\"false\" expected"
+		case 22: s = "\"+\" expected"
+		case 23: s = "\"|\" expected"
+		case 24: s = "\"*\" expected"
+		case 25: s = "\"/\" expected"
+		case 26: s = "\"%\" expected"
+		case 27: s = "\"&\" expected"
+		case 28: s = "\"!\" expected"
+		case 29: s = "\"^\" expected"
+		case 30: s = "\"**\" expected"
+		case 31: s = "\"==\" expected"
+		case 32: s = "\"!=\" expected"
+		case 33: s = "\"<=\" expected"
+		case 34: s = "\"<\" expected"
+		case 35: s = "\">\" expected"
+		case 36: s = "\">=\" expected"
+		case 37: s = "??? expected"
+		case 38: s = "invalid RelOp"
+		case 39: s = "invalid AddOp"
+		case 40: s = "invalid MulOp"
+		case 41: s = "invalid Factor"
+		case 42: s = "invalid PowerOp"
+		case 43: s = "invalid UnaryOp"
 
         default: s = "error \(n)"
         }

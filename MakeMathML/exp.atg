@@ -12,25 +12,21 @@ CHARACTERS
   eol       = '\r' .
   lf        = '\n' .
   tab       = '\t' .
-  superminus = '\u207b' .
-  superone   = '\u00b9' .
 
 TOKENS
-  pi          = '\u03c0' .
   squared     = '\u00b2' .
   cubed       = '\u00b3' .
   times       = '\u00d7' .
   divide      = '\u00f7' .
   minus       = '\u2212' .
-  reciprocal  = superminus superone .
-  ident       = letter {baseDigit} [superminus superone] .
+  ident       = letter {baseDigit} .
   number      =  digit { digit } [ '.' { digit }
                  [ 'E' [ '+' | '-' ] digit { digit } ]] ['i'] .
   octalInt    = "0o" octDigit { octDigit } .
   hexInt      = "0x" hexDigit { hexDigit } .
   binInt      = "0b" binDigit { binDigit } .
   decInt      = "0d" digit { digit } .
-  baseInt     = "#" digit { digit } "#" baseDigit { baseDigit } .
+  baseInt     = "#" digit { digit } "#" baseDigit { base Digit } .
 
 COMMENTS
   FROM "//" TO lf
@@ -59,7 +55,9 @@ PRODUCTIONS
 
   Statement <_ s: inout Stat?>            (. var e: Expr? = nil; var name = ""; var obj : Obj? = nil .)
     =                                     (. s = nil .)
-        ["let" ident                      (. name = t.val; obj = curBlock.find(name) .)
+        ["let" ident                      (. name = t.val; obj = curBlock.find(name)
+                                             if Ident._symbols[name] != nil { SemErr("Can't assign to a reserved symbol \"\(name)\"") }
+                                           .)
           '=']
         Expression <&e>                   (. s = Assignment(obj, e) .)
       .
@@ -109,7 +107,6 @@ PRODUCTIONS
       | "~" Factor<&e>                    (. e = UnaryExpr(Operator.NOT, e) .)
       | "true"                            (. e = BoolCon(true) .)
       | "false"                           (. e = BoolCon(false) .)
-      | pi                                (. e = IntCon(Double.pi) .)
       | "("
             Expression <&e>
         ")"
