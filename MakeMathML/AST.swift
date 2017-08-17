@@ -165,7 +165,7 @@ public class BinExpr: Expr {
         switch op {
         case .ADD: s = symbol("+")
         case .SUB: s = symbol("&minus;")
-        case .MUL: s = symbol("&#x2062;") // invisible times
+        case .MUL: s = symbol("&InvisibleTimes;")
         case .DIV: return fraction(l, over: r)
         case .REM: s = symbol("%")
         case .AND: s = symbol("&amp;")
@@ -207,7 +207,7 @@ public class UnaryExpr: Expr {
         var s = ""
         switch op {
         case .SUB: s = symbol("-")
-        case .NOT: s = symbol("~")
+        case .NOT: return "<mover>\n<mrow>\n\(x)</mrow>\n" + symbol("&OverBar;") + "</mover>\n"
         case .SQR: return power(x, to:number(2))
         case .CUB: return power(x, to:number(3))
         case .FACT: return x + symbol("!")

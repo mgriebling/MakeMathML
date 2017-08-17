@@ -14,7 +14,7 @@ extension Node {
     
     func symbol(_ x: String, size: Int = 0) -> String {
         let s = size == 0 ? "" : " mathsize=\"\(size)\""
-        return "<ms\(s)>\(x)</ms>\n"
+        return "<mo\(s)>\(x)</mo>\n"
     }
     
     func variable(_ x: String, size: Int = 0) -> String {
