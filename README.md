@@ -3,6 +3,7 @@ Also the set of input equations in the input file are evaluated and produce an o
 
 For example the following input file:
 
+~~~
 let a = 2; let b = a+3;
 let t = true;
 let p2 = pi/2;
@@ -17,9 +18,11 @@ ln(exp(3));
 b²;
 ~(b+c);
 10!
+~~~
 
 produces this output:
 
+~~~
 Parsing
 Proc 
 Block(
@@ -206,3 +209,11 @@ Block(
 
 Parsed correctly
 Program ended with exit code: 0
+```
+
+The MathML output can be interpreted by most html browsers and produces the following:
+
+![Screenshot 2024-08-17 at 3 05 18 PM](https://github.com/user-attachments/assets/661b82a0-9fa1-4e98-92bb-cb43a2477689)
+![Screenshot 2024-08-17 at 3 06 55 PM](https://github.com/user-attachments/assets/4bb5f003-ac0e-4c97-9f77-265bf71ee759)
+
+
