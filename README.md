@@ -213,7 +213,7 @@ Program ended with exit code: 0
 
 The MathML output can be interpreted by most html browsers and produces the following:
 
-![Screenshot 2024-08-17 at 3 05 18 PM](https://github.com/user-attachments/assets/661b82a0-9fa1-4e98-92bb-cb43a2477689)
-![Screenshot 2024-08-17 at 3 06 55 PM](https://github.com/user-attachments/assets/4bb5f003-ac0e-4c97-9f77-265bf71ee759)
+![Screenshot 2024-08-17 at 3 43 53 PM](https://github.com/user-attachments/assets/cc210415-7b15-4b05-ae2d-0f6405a53321)
+
 
 
