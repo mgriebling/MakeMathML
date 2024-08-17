@@ -209,7 +209,7 @@ Block(
 
 Parsed correctly
 Program ended with exit code: 0
-```
+~~~
 
 The MathML output can be interpreted by most html browsers and produces the following:
 
